@@ -112,4 +112,4 @@ PrepPulse is built to demonstrate how **GenAI can transform education** by:
 
 ---
 
-**Built with ❤️ for GenAI Hackathon**
+
