@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VIBE-coding | PYQ MCQ Practice</title>
+
+<style>
+:root{
+  --primary:#1c274c;
+  --accent:#ff7a18;
+  --bg:#f4f6fb;
+  --card:#ffffff;
+  --soft:#eef2ff;
+  --success:#2ecc71;
+  --danger:#ff5d5d;
+}
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:"Segoe UI",system-ui,sans-serif;
+}
+
+body{
+  background:linear-gradient(135deg,#f4f6fb,#eef2ff);
+  min-height:100vh;
+}
+
+/* Header */
+header{
+  background:linear-gradient(135deg,var(--primary),#2a3570);
+  color:#fff;
+  padding:18px 32px;
+  font-size:22px;
+  font-weight:800;
+  box-shadow:0 8px 25px rgba(28,39,76,.4);
+}
+
+/* Card */
+.container{
+  max-width:760px;
+  margin:45px auto;
+  background:var(--card);
+  padding:36px;
+  border-radius:22px;
+  box-shadow:0 18px 40px rgba(0,0,0,.12);
+  animation:fade .5s ease;
+}
+
+@keyframes fade{
+  from{opacity:0;transform:translateY(15px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+.topic{
+  display:inline-block;
+  background:var(--soft);
+  color:var(--primary);
+  font-weight:700;
+  padding:6px 16px;
+  border-radius:999px;
+  margin-bottom:16px;
+  font-size:14px;
+}
+
+.question{
+  font-size:22px;
+  font-weight:700;
+  color:var(--primary);
+  margin-bottom:22px;
+}
+
+/* Options */
+.option{
+  display:flex;
+  align-items:center;
+  padding:14px 16px;
+  margin-bottom:12px;
+  background:var(--soft);
+  border-radius:14px;
+  cursor:pointer;
+  transition:.25s;
+  border:2px solid transparent;
+}
+
+.option:hover{
+  transform:translateX(6px);
+  border-color:var(--accent);
+  background:#fff7f0;
+}
+
+.option input{
+  margin-right:12px;
+  accent-color:var(--accent);
+}
+
+.option.selected{
+  background:linear-gradient(135deg,var(--accent),#ff9a3c);
+  color:#fff;
+  border-color:var(--accent);
+}
+
+/* Button */
+button{
+  width:100%;
+  padding:14px;
+  margin-top:22px;
+  border:none;
+  border-radius:14px;
+  font-size:16px;
+  font-weight:700;
+  cursor:pointer;
+  background:linear-gradient(135deg,var(--accent),#ff9a3c);
+  color:#fff;
+  box-shadow:0 8px 22px rgba(255,122,24,.45);
+  transition:.25s;
+}
+
+button:hover{
+  transform:translateY(-3px);
+  box-shadow:0 14px 32px rgba(255,122,24,.6);
+}
+
+/* Result */
+.result{
+  margin-top:18px;
+  font-size:18px;
+  font-weight:800;
+}
+
+.result.success{color:var(--success)}
+.result.error{color:var(--danger)}
+
+.hidden{display:none}
+
+/* End section */
+.end{
+  text-align:center;
+  margin-top:30px;
+}
+
+.end button{
+  margin-top:12px;
+  background:linear-gradient(135deg,var(--primary),#2a3570);
+  box-shadow:0 10px 28px rgba(28,39,76,.5);
+}
+
+/* Mobile */
+@media(max-width:600px){
+  .container{
+    margin:20px;
+    padding:26px;
+  }
+  .question{font-size:19px}
+}
+</style>
+</head>
+
+<body>
+
+<header>VIBE-coding – PYQ Smart Practice</header>
+
+<div class="container" id="quizBox">
+  <div class="topic" id="topic"></div>
+  <div class="question" id="question"></div>
+  <div id="options"></div>
+  <button onclick="submitAnswer()">Submit Answer</button>
+  <div class="result" id="result"></div>
+</div>
+
+<div class="container hidden" id="resultBox">
+  <h2 style="color:#1c274c">Quiz Completed 🎉</h2>
+
+  <p>✅ Correct: <b id="correctCount"></b></p>
+  <p>❌ Incorrect: <b id="wrongCount"></b></p>
+  <p>⚠ Weak Topic: <b id="weakTopic"></b></p>
+
+  <div class="end">
+    <button onclick="aiAction('flashcards')">📘 Generate Flashcards</button>
+    <button onclick="aiAction('notes')">📝 Generate Notes</button>
+    <button onclick="aiAction('practice')">🎯 Practice Similar Questions</button>
+    <button onclick="location.href='progress.html'">📊 View Progress</button>
+    <button onclick="clearProgress()" style="background:#ff5d5d">🗑️ Clear Progress</button>
+  </div>
+</div>
+
+<script>
+/* JSON-ready questions */
+const questions=[
+  {
+    topic:"Stack",
+    question:"Which data structure follows LIFO?",
+    options:["Queue","Stack","Tree","Graph"],
+    answer:1
+  },
+  {
+    topic:"Queue",
+    question:"Which operation removes element from queue?",
+    options:["Push","Pop","Enqueue","Dequeue"],
+    answer:3
+  },
+  {
+    topic:"Stack",
+    question:"Which operation adds element in stack?",
+    options:["Push","Pop","Peek","Delete"],
+    answer:0
+  }
+];
+
+let index=0;
+let selected=null;
+let correct=0;
+let wrong=0;
+let weakMap={};
+
+const topicEl=document.getElementById("topic");
+const quesEl=document.getElementById("question");
+const optEl=document.getElementById("options");
+const resultEl=document.getElementById("result");
+
+function loadQuestion(){
+  const q=questions[index];
+  selected=null;
+  topicEl.innerText="Topic: "+q.topic;
+  quesEl.innerText=q.question;
+  optEl.innerHTML="";
+  resultEl.innerText="";
+  resultEl.className="result";
+
+  q.options.forEach((opt,i)=>{
+    const div=document.createElement("div");
+    div.className="option";
+    div.innerHTML=`<input type="radio" name="opt"> ${opt}`;
+    div.onclick=()=>{
+      document.querySelectorAll(".option").forEach(o=>o.classList.remove("selected"));
+      div.classList.add("selected");
+      selected=i;
+    };
+    optEl.appendChild(div);
+  });
+}
+
+function submitAnswer(){
+  if(selected===null){
+    alert("Select an option");
+    return;
+  }
+  const q=questions[index];
+  if(selected===q.answer){
+    correct++;
+    resultEl.innerText="✅ Correct";
+    resultEl.classList.add("success");
+  }else{
+    wrong++;
+    weakMap[q.topic]=(weakMap[q.topic]||0)+1;
+    resultEl.innerText="❌ Incorrect";
+    resultEl.classList.add("error");
+  }
+
+  setTimeout(()=>{
+    index++;
+    if(index<questions.length){
+      loadQuestion();
+    }else{
+      showResult();
+    }
+  },900);
+}
+
+function showResult(){
+  document.getElementById("quizBox").classList.add("hidden");
+  document.getElementById("resultBox").classList.remove("hidden");
+  document.getElementById("correctCount").innerText=correct;
+  document.getElementById("wrongCount").innerText=wrong;
+
+  const weak=Object.keys(weakMap).sort((a,b)=>weakMap[b]-weakMap[a])[0];
+  document.getElementById("weakTopic").innerText=weak || "None 🎉";
+
+  // Persist session to localStorage under key 'vibeCoding_progress' (migrate from old key if present)
+  try{
+    const keyNew = 'vibeCoding_progress';
+    const keyOld = 'prepPulse_progress';
+    const raw = localStorage.getItem(keyNew) || localStorage.getItem(keyOld) || '{}';
+    const prev = JSON.parse(raw || '{}');
+    prev.totalSolved = (prev.totalSolved || 0) + (correct + wrong);
+    prev.totalCorrect = (prev.totalCorrect || 0) + correct;
+    prev.totalWrong = (prev.totalWrong || 0) + wrong;
+    prev.topicCounts = prev.topicCounts || {};
+    if(weak) prev.topicCounts[weak] = (prev.topicCounts[weak] || 0) + 1;
+    prev.sessions = prev.sessions || [];
+    prev.sessions.push({ date: new Date().toISOString(), solved: correct+wrong, correct, wrong, weakTopic: weak || null });
+    localStorage.setItem(keyNew, JSON.stringify(prev));
+    // remove old key if present
+    if(localStorage.getItem(keyOld)) localStorage.removeItem(keyOld);
+  }catch(e){ console.warn('Could not save progress', e); }
+}
+
+/***** AI hooks *****/
+function aiAction(type){
+  const weak = Object.keys(weakMap).sort((a,b)=>weakMap[b]-weakMap[a])[0];
+  const fallbackTopic = questions[index] ? questions[index].topic : '';
+  const topic = weak || fallbackTopic || 'General';
+
+  if(type === 'flashcards'){
+    window.location.href = `flashcard.html?topic=${encodeURIComponent(topic)}`;
+  } else if(type === 'notes'){
+    window.location.href = `notes.html?topic=${encodeURIComponent(topic)}`;
+  } else if(type === 'practice'){
+    alert('Practice generation is not implemented yet.');
+  }
+}
+
+function clearProgress(){
+  if(!confirm('Clear all saved progress? This cannot be undone.')) return;
+  localStorage.removeItem('vibeCoding_progress');
+  localStorage.removeItem('prepPulse_progress');
+  alert('Progress cleared.');
+}
+
+loadQuestion();
+</script>
+
+</body>
+</html>
+ 

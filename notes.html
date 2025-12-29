@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Notes Generator • VIBE-coding</title>
+<style>
+  body{font-family:Segoe UI,system-ui,sans-serif;background:linear-gradient(135deg,#f4f6fb,#eef2ff);min-height:100vh;padding:28px}
+  .card{max-width:800px;margin:0 auto;background:#fff;padding:26px;border-radius:14px;box-shadow:0 18px 40px rgba(0,0,0,.08)}
+  h1{color:#1c274c;margin-bottom:8px}
+  .controls{display:flex;gap:8px;margin-bottom:12px}
+  input[type=text], textarea{width:100%;padding:10px;border-radius:8px;border:1px solid #e6e6e6}
+  button{padding:10px 14px;border-radius:8px;border:none;background:#ff7a18;color:#fff;font-weight:700;cursor:pointer}
+  .notes{margin-top:16px;background:#fafafa;padding:14px;border-radius:10px}
+  .notes h3{margin-bottom:8px}
+  .meta{font-size:13px;color:#666;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>AI Notes Generator</h1>
+  <div style="margin-bottom:10px;font-size:14px">
+    <a href="index.html">Home</a> • <a href="pyq.html">PYQ</a> • <a href="progress.html">Progress</a>
+  </div>
+  <p class="meta">Enter a topic or paste a question and click <strong>Generate Notes</strong>.</p>
+
+  <label>Topic</label>
+  <input type="text" id="topicInput" placeholder="e.g. Deadlock in OS">
+
+  <label style="margin-top:8px">(Optional) Question / Context</label>
+  <textarea id="contextInput" rows="4" placeholder="Paste the exam question or short context..."></textarea>
+
+  <div style="display:flex;gap:8px;margin-top:10px">
+    <button id="genBtn">Generate Notes</button>
+    <button id="copyBtn">Copy Notes</button>
+    <button id="downloadBtn">Download .txt</button>
+  </div>
+
+  <div class="notes" id="notesArea" style="display:none">
+    <h3>Generated Notes</h3>
+    <div id="notesContent"></div>
+  </div>
+</div>
+
+<script>
+function getQueryParam(name){
+  const params = new URLSearchParams(window.location.search);
+  return params.get(name) || '';
+}
+
+function generateNotes(topic, context){
+  // Simple client-side template generator (replace with AI backend if available)
+  const title = topic || 'Topic';
+  const summary = context ? `${context} — Short definition and explanation.` : `${title} is an important concept; here is a concise definition and key points.`;
+  const keyPoints = [
+    `Definition: ${title} — concise explanation.`,
+    'Key idea 1 — what to remember.',
+    'Key idea 2 — how it works in practice.',
+    'Important example with steps.'
+  ];
+  const relatedQuestions = [
+    `Explain ${title} with an example.`,
+    `List differences between ${title} and related concept.`,
+    `How to solve problems on ${title}?`
+  ];
+
+  return { title, summary, keyPoints, relatedQuestions };
+}
+
+function renderNotes(obj){
+  const out = [];
+  out.push(`<p><strong>Summary:</strong> ${obj.summary}</p>`);
+  out.push('<p><strong>Key points:</strong></p>');
+  out.push('<ul>');
+  obj.keyPoints.forEach(p=>out.push(`<li>${p}</li>`));
+  out.push('</ul>');
+  out.push('<p><strong>Related practice questions:</strong></p>');
+  out.push('<ul>');
+  obj.relatedQuestions.forEach(q=>out.push(`<li>${q}</li>`));
+  out.push('</ul>');
+  return out.join('\n');
+}
+
+document.addEventListener('DOMContentLoaded', ()=>{
+  const topicInput = document.getElementById('topicInput');
+  const contextInput = document.getElementById('contextInput');
+  const genBtn = document.getElementById('genBtn');
+  const copyBtn = document.getElementById('copyBtn');
+  const downloadBtn = document.getElementById('downloadBtn');
+  const notesArea = document.getElementById('notesArea');
+  const notesContent = document.getElementById('notesContent');
+
+  // Pre-fill from query param if provided
+  const qTopic = getQueryParam('topic');
+  if(qTopic) topicInput.value = decodeURIComponent(qTopic);
+
+  function doGenerate(){
+    const t = topicInput.value.trim();
+    const c = contextInput.value.trim();
+    if(!t && !c){ alert('Enter a topic or context to generate notes.'); return; }
+    const obj = generateNotes(t, c);
+    notesContent.innerHTML = renderNotes(obj);
+    notesArea.style.display = 'block';
+  }
+
+  genBtn.addEventListener('click', doGenerate);
+
+  copyBtn.addEventListener('click', ()=>{
+    const text = notesContent.innerText;
+    navigator.clipboard.writeText(text).then(()=>alert('Notes copied'));
+  });
+
+  downloadBtn.addEventListener('click', ()=>{
+    const text = notesContent.innerText;
+    const blob = new Blob([text], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = (topicInput.value || 'notes') + '.txt';
+    document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+  });
+
+  // Auto-generate if topic provided
+  if(topicInput.value) doGenerate();
+});
+</script>
+</body>
+</html>

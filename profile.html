@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Profile • VIBE-coding</title>
+<style>
+  body{font-family:Segoe UI,system-ui,sans-serif;background:linear-gradient(135deg,#f4f6fb,#eef2ff);min-height:100vh;padding:28px}
+  .card{max-width:700px;margin:0 auto;background:#fff;padding:26px;border-radius:14px;box-shadow:0 18px 40px rgba(0,0,0,.08)}
+  h1{color:#1c274c;margin-bottom:8px}
+  .row{display:flex;gap:12px;align-items:center}
+  .avatar{width:80px;height:80px;border-radius:999px;background:#eef2ff;display:flex;align-items:center;justify-content:center;font-weight:800;color:#1c274c}
+  .meta{font-size:13px;color:#666;margin-top:8px}
+  button{padding:8px 12px;border-radius:8px;border:none;background:#ff7a18;color:#fff;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>Profile</h1>
+  <div style="margin-bottom:10px;font-size:14px">
+    <a href="index.html">Home</a> • <a href="pyq.html">PYQ</a> • <a href="progress.html">Progress</a>
+  </div>
+  <div class="row">
+    <div class="avatar">V</div>
+    <div>
+      <div style="font-weight:800;font-size:18px">Your Name</div>
+      <div class="meta">vibe.user@example.com</div>
+      <div style="margin-top:8px">
+        <button onclick="alert('Edit profile coming soon')">Edit Profile</button>
+        <button onclick="location.href='progress.html'" style="margin-left:8px;background:#3b82f6">View Progress</button>
+      </div>
+    </div>
+  </div>
+
+  <h3 style="margin-top:18px">Account</h3>
+  <p class="meta">Member since: --</p>
+  <p class="meta">Role: Student</p>
+
+  <h3 style="margin-top:18px">Preferences</h3>
+  <p class="meta">Theme: Light (toggle in settings)</p>
+</div>
+</body>
+</html>

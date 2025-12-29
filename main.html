@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>VIBE STUDYING</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="index.css">
+  
+</head>
+<body>
+
+<div class="container">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo">VIBE STUDYING</div>
+    <nav class="menu">
+      <div class="active">Dashboard</div>
+      <div><a href="pyq.html">PYQ Collection</a></div>
+      <div><a href="notes.html">Notes</a></div>
+      <div><a href="progress.html">Progress</a></div>
+      <div><a href="profile.html">Profile</a></div>
+    </nav>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+    <header class="header">VIBE STUDYING</header>
+
+    <section class="grid">
+
+      <!-- Performance Snapshot -->
+      <div class="card snapshot">
+        <h3>Performance Snapshot</h3>
+        <div class="stats">
+          <div class="stat"><span>80%</span><br>Accuracy</div>
+          <div class="stat"><span>150</span><br>Solved</div>
+          <div class="stat"><span>🔥12</span><br>Streak</div>
+        </div>
+        <ul>
+          <li>⚠ Improve OS Scheduling</li>
+          <li>📈 DSA accuracy improving</li>
+          <li>🎯 Solve 10 PYQs today</li>
+        </ul>
+      </div>
+
+      <!-- Subject Strength -->
+      <div class="card">
+        <h3>Subject Strength</h3>
+        <div class="donut"></div>
+        <p class="subjects">DSA • OS • DBMS • CN • OOPs</p>
+      </div>
+
+      <!-- Smart Notes -->
+      <div class="card">
+        <h3>Smart Notes</h3>
+        <div class="note">OS – Process vs Thread</div>
+        <div class="note">DSA – Time Complexity</div>
+        <div class="note">DBMS – Normal Forms</div>
+        <button class="btn" onclick="openModal()">Create AI Notes</button>
+      </div>
+
+      <!-- Flashcards -->
+      <div class="card">
+        <h3>Flashcards</h3>
+        <div class="flashcard" onclick="flipCard(this)">
+          Q: What is Deadlock?
+        </div>
+      </div>
+
+      <!-- AI Collaboration -->
+      <div class="card">
+        <h3>AI + Peer Lab</h3>
+        <button class="small-btn" onclick="openModal()">🤖 Gemini Explain</button>
+        <button class="small-btn" onclick="location.href='peerDiscussion.html'">👥 Peer Discussion</button>
+        <button class="small-btn">🧩 Debug Help</button>
+      </div>
+
+      <!-- Hackathon Focus Mode -->
+      <div class="card">
+        <h3>Hackathon Focus Mode</h3>
+        <div class="focus">
+          <span>🎯 Goal:</span> Revise OS + DSA
+          <span>⏳ Timer:</span> 25 min
+          <span>⚠ Weak Area:</span> Deadlock
+          <span>✅ Done:</span> 3 tasks
+        </div>
+      </div>
+
+    </section>
+  </main>
+</div>
+
+<!-- Modal -->
+<div class="modal" id="modal">
+  <div class="modal-content">
+    <h3>Gemini AI Assistant</h3>
+    <textarea id="aiInput" placeholder="Ask Gemini about OS, DSA, DBMS..."
+      style="width:100%;height:80px;margin-top:10px;padding:8px;"></textarea>
+
+    <button class="btn" onclick="askGemini()">Ask Gemini</button>
+
+    <p id="aiOutput" style="font-size:13px;margin-top:10px;"></p>
+
+    <button class="btn" onclick="closeModal()" style="margin-top:10px">
+      Close
+    </button>
+  </div>
+</div>
+
+
+<script src="index.js"></script>
+</body>
+</html>

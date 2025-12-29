@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Progress • VIBE-coding</title>
+<style>
+  body{font-family:Segoe UI,system-ui,sans-serif;background:linear-gradient(135deg,#f4f6fb,#eef2ff);min-height:100vh;padding:28px}
+  .card{max-width:880px;margin:0 auto;background:#fff;padding:26px;border-radius:14px;box-shadow:0 18px 40px rgba(0,0,0,.08)}
+  h1{color:#1c274c;margin-bottom:8px}
+  .meta{font-size:13px;color:#666;margin-bottom:12px}
+  .stats{display:flex;gap:12px}
+  .stat{flex:1;background:#f7f9fc;padding:12px;border-radius:10px;text-align:center}
+  table{width:100%;border-collapse:collapse;margin-top:14px}
+  table th, table td{padding:8px;border-bottom:1px solid #eee;text-align:left}
+  .actions{margin-top:12px;display:flex;gap:8px}
+  button{padding:8px 12px;border-radius:8px;border:none;background:#ff7a18;color:#fff;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>Study Progress</h1>
+  <div style="margin-bottom:10px;font-size:14px">
+    <a href="index.html">Home</a> • <a href="pyq.html">PYQ</a> • <a href="notes.html">Notes</a>
+  </div>
+  <p class="meta">Overview of your cumulative practice sessions (saved locally in your browser).</p>
+
+  <div class="stats">
+    <div class="stat">
+      <div style="font-size:22px;font-weight:800" id="totalSolved">0</div>
+      <div style="font-size:13px;color:#666">Solved</div>
+    </div>
+    <div class="stat">
+      <div style="font-size:22px;font-weight:800" id="totalCorrect">0</div>
+      <div style="font-size:13px;color:#666">Correct</div>
+    </div>
+    <div class="stat">
+      <div style="font-size:22px;font-weight:800" id="totalWrong">0</div>
+      <div style="font-size:13px;color:#666">Wrong</div>
+    </div>
+    <div class="stat">
+      <div style="font-size:22px;font-weight:800" id="accuracy">0%</div>
+      <div style="font-size:13px;color:#666">Accuracy</div>
+    </div>
+  </div>
+
+  <h3 style="margin-top:18px">Weak Topics</h3>
+  <div id="weakList">No data yet</div>
+
+  <h3 style="margin-top:18px">Recent Sessions</h3>
+  <table>
+    <thead><tr><th>Date</th><th>Solved</th><th>Correct</th><th>Wrong</th><th>Weak Topic</th></tr></thead>
+    <tbody id="sessions"></tbody>
+  </table>
+
+  <div class="actions">
+    <button id="clearBtn">Clear Progress</button>
+    <button id="exportBtn">Export Data</button>
+  </div>
+</div>
+
+<script>
+function loadProgress(){
+  try{
+    const keyNew = 'vibeCoding_progress';
+    const keyOld = 'prepPulse_progress';
+    const raw = localStorage.getItem(keyNew) || localStorage.getItem(keyOld) || '{}';
+    const data = JSON.parse(raw || '{}');
+    const totalSolved = data.totalSolved || 0;
+    const totalCorrect = data.totalCorrect || 0;
+    const totalWrong = data.totalWrong || 0;
+    const accuracy = totalSolved ? Math.round((totalCorrect/totalSolved)*100) : 0;
+
+    document.getElementById('totalSolved').innerText = totalSolved;
+    document.getElementById('totalCorrect').innerText = totalCorrect;
+    document.getElementById('totalWrong').innerText = totalWrong;
+    document.getElementById('accuracy').innerText = accuracy + '%';
+
+    const topicCounts = data.topicCounts || {};
+    const weakList = Object.keys(topicCounts).sort((a,b)=>topicCounts[b]-topicCounts[a]);
+    const weakListEl = document.getElementById('weakList');
+    if(weakList.length===0){ weakListEl.innerText = 'No weak topics yet 🎉'; }
+    else{
+      weakListEl.innerHTML = '<ol>' + weakList.map(t=>`<li>${t} — ${topicCounts[t]} wrong session(s)</li>`).join('') + '</ol>';
+    }
+
+    const sessions = data.sessions || [];
+    const tbody = document.getElementById('sessions');
+    tbody.innerHTML = '';
+    sessions.slice().reverse().forEach(s=>{
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${new Date(s.date).toLocaleString()}</td><td>${s.solved}</td><td>${s.correct}</td><td>${s.wrong}</td><td>${s.weakTopic || '-'}</td>`;
+      tbody.appendChild(tr);
+    });
+  }catch(e){ console.warn('Load progress failed', e); }
+}
+
+document.addEventListener('DOMContentLoaded', ()=>{
+  loadProgress();
+  document.getElementById('clearBtn').addEventListener('click', ()=>{
+    if(!confirm('Clear all saved progress from this browser?')) return;
+    localStorage.removeItem('vibeCoding_progress');
+    localStorage.removeItem('prepPulse_progress');
+    loadProgress();
+    alert('Progress cleared.');
+  });
+
+  document.getElementById('exportBtn').addEventListener('click', ()=>{
+    const data = localStorage.getItem('vibeCoding_progress') || localStorage.getItem('prepPulse_progress') || '{}';
+    const blob = new Blob([data], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = 'vibeCoding_progress.json'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+  });
+});
+</script>
+</body>
+</html>

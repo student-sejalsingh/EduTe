@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Flashcard Generator • VIBE-coding</title>
+<style>
+  body{font-family:Segoe UI,system-ui,sans-serif;background:linear-gradient(135deg,#f4f6fb,#eef2ff);min-height:100vh;padding:28px}
+  .card{max-width:820px;margin:0 auto;background:#fff;padding:26px;border-radius:14px;box-shadow:0 18px 40px rgba(0,0,0,.08)}
+  h1{color:#1c274c;margin-bottom:8px}
+  .controls{display:flex;gap:8px;margin-bottom:12px}
+  input[type=text]{width:100%;padding:10px;border-radius:8px;border:1px solid #e6e6e6}
+  button{padding:10px 14px;border-radius:8px;border:none;background:#ff7a18;color:#fff;font-weight:700;cursor:pointer}
+  .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-top:14px}
+  .cardItem{background:#3b82f6;color:#fff;padding:14px;border-radius:12px;cursor:pointer;min-height:110px;display:flex;align-items:center;justify-content:center}
+  .back{background:#111827}
+  .meta{font-size:13px;color:#666;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>Flashcard Generator</h1>
+  <div style="margin-bottom:10px;font-size:14px">
+    <a href="index.html">Home</a> • <a href="pyq.html">PYQ</a> • <a href="progress.html">Progress</a>
+  </div>
+  <p class="meta">Enter a topic and click <strong>Generate Flashcards</strong>. Click a card to flip and see the answer.</p>
+
+  <div style="display:flex;gap:8px">
+    <input id="topicInput" type="text" placeholder="e.g. Deadlock in OS">
+    <button id="genBtn">Generate Flashcards</button>
+    <button id="exportBtn">Export JSON</button>
+  </div>
+
+  <div class="cards" id="cards"></div>
+</div>
+
+<script>
+function getQueryParam(name){
+  const params = new URLSearchParams(window.location.search);
+  return params.get(name) || '';
+}
+
+function createFlashcards(topic){
+  const t = topic || 'Topic';
+  return [
+    { q: `What is ${t}?`, a: `${t} is a concept — short definition and core idea.` },
+    { q: `List key features of ${t}.`, a: `1) Feature A\n2) Feature B\n3) Notes` },
+    { q: `Give an example of ${t}.`, a: `Example: A real-world scenario where ${t} applies.` },
+    { q: `How to reason about ${t}?`, a: `Step 1: ...\nStep 2: ...` },
+    { q: `Why is ${t} important in exams?`, a: `Because it tests core understanding of concepts.` }
+  ];
+}
+
+document.addEventListener('DOMContentLoaded', ()=>{
+  const topicInput = document.getElementById('topicInput');
+  const genBtn = document.getElementById('genBtn');
+  const cardsEl = document.getElementById('cards');
+  const exportBtn = document.getElementById('exportBtn');
+
+  const qTopic = getQueryParam('topic');
+  if(qTopic) topicInput.value = decodeURIComponent(qTopic);
+
+  let currentCards = [];
+
+  function render(){
+    cardsEl.innerHTML = '';
+    currentCards.forEach((c,i)=>{
+      const el = document.createElement('div');
+      el.className = 'cardItem front';
+      el.innerHTML = `<div style="text-align:center"><strong>${c.q}</strong></div>`;
+      el.onclick = ()=>{
+        // flip
+        if(el.classList.contains('front')){
+          el.classList.remove('front');
+          el.classList.add('back');
+          el.innerHTML = `<div style="text-align:center">${c.a.replace(/\n/g,'<br>')}</div>`;
+        } else {
+          el.classList.remove('back');
+          el.classList.add('front');
+          el.innerHTML = `<div style="text-align:center"><strong>${c.q}</strong></div>`;
+        }
+      };
+      cardsEl.appendChild(el);
+    });
+  }
+
+  genBtn.addEventListener('click', ()=>{
+    const t = topicInput.value.trim();
+    if(!t){ alert('Enter a topic'); return; }
+    currentCards = createFlashcards(t);
+    render();
+  });
+
+  exportBtn.addEventListener('click', ()=>{
+    const data = JSON.stringify(currentCards, null, 2);
+    const blob = new Blob([data], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = (topicInput.value||'flashcards')+'.json'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+  });
+
+  if(topicInput.value){
+    currentCards = createFlashcards(topicInput.value);
+    render();
+  }
+});
+</script>
+</body>
+</html>
